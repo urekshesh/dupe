@@ -1,0 +1,131 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Load Rayfield UI library
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+local Window = Rayfield:CreateWindow({
+    Name = "Pet & Seed Spawner",
+    LoadingTitle = "Pet & Seed Spawner",
+    LoadingSubtitle = "Made by whqtt",
+    Theme = "Default"
+})
+
+-- Pet Spawner Tab
+local PetTab = Window:CreateTab("Pet Spawner", 136232391555861)
+PetTab:CreateSection("Pet Spawner")
+
+local petName = "Raccoon"
+local petWeight = 1
+local petAge = 1
+
+PetTab:CreateInput({
+    Name = "Pet Name",
+    PlaceholderText = "Raccoon",
+    CurrentValue = "",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(value)
+        petName = value
+    end
+})
+
+PetTab:CreateInput({
+    Name = "Pet Weight",
+    PlaceholderText = "1",
+    CurrentValue = "",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(value)
+        petWeight = tonumber(value) or 1
+    end
+})
+
+PetTab:CreateInput({
+    Name = "Pet Age",
+    PlaceholderText = "1",
+    CurrentValue = "",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(value)
+        petAge = tonumber(value) or 1
+    end
+})
+
+PetTab:CreateButton({
+    Name = "Spawn",
+    Callback = function()
+        -- Access pet data from PetRegistry
+        local petData = require(ReplicatedStorage.Data.PetRegistry.PetList)[petName]
+        if petData then
+            -- Implement pet spawning logic here
+            -- Example: Create pet instance with weight and age
+            print("Spawning pet: " .. petName .. ", Weight: " .. petWeight .. ", Age: " .. petAge)
+        else
+            warn("Pet not found: " .. petName)
+        end
+    end
+})
+
+-- Seed Spawner Tab
+local SeedTab = Window:CreateTab("Seed Spawner", 111869302762063)
+SeedTab:CreateSection("Seed Spawner")
+
+local seedName = ""
+
+SeedTab:CreateInput({
+    Name = "Seed Name",
+    PlaceholderText = "Carrot",
+    CurrentValue = "",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(value)
+        seedName = value
+    end
+})
+
+SeedTab:CreateButton({
+    Name = "Spawn",
+    Callback = function()
+        if not seedName or seedName == "" then
+            warn("Please enter a valid seed name")
+            return
+        end
+
+        -- Access seed data
+        local seedData = require(ReplicatedStorage.Data.SeedData)[seedName]
+        if not seedData then
+            warn("Seed not found: " .. seedName)
+            return
+        end
+
+        -- Create new Tool instance
+        local tool = Instance.new("Tool")
+        tool.Name = seedData.SeedName .. " [X" .. (tool:GetAttribute("Quantity") or 0) + 1 .. "]"
+        tool:SetAttribute("ItemType", "Holdable")
+        tool:SetAttribute("SeedName", seedName)
+        tool:SetAttribute("Quantity", (tool:GetAttribute("Quantity") or 0) + 1)
+
+        -- Clone seed model and set as handle
+        local seedModel = ReplicatedStorage.Seed_Models:FindFirstChild(seedName)
+        if seedModel then
+            local handle = seedModel:Clone()
+            handle.Name = "Handle"
+            handle.Parent = tool
+        else
+            warn("Seed model not found: " .. seedName)
+            return
+        end
+
+        -- Handle tool equipping for grip positioning
+        tool.Equipped:Connect(function()
+            local character = LocalPlayer.Character
+            if character then
+                local rightArm = character:WaitForChild("Right Arm")
+                local rightGrip = rightArm:WaitForChild("RightGrip")
+                rightGrip.C0 = CFrame.new(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, -1, 0)
+                rightGrip.C1 = CFrame.new(0.2, -0.448717117, 0.231557086, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+            end
+        end)
+
+        -- Add tool to player's backpack
+        tool.Parent = LocalPlayer.Backpack
+        print("Spawned seed: " .. seedName)
+    end
+})
